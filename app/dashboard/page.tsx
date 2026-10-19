@@ -1,120 +1,142 @@
 "use client";
 
-import AppShell from '@/components/app-shell';
-import { CalendarDays, Clock3, Users, Sparkles } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { FormEvent, useState } from 'react';
 
-const statCards = [
-  { label: 'Agendamentos hoje', value: '26', icon: CalendarDays, color: 'rose' },
-  { label: 'Clientes ativos', value: '540', icon: Users, color: 'pink' },
-  { label: 'Tempo médio', value: '45 min', icon: Clock3, color: 'amber' },
-  { label: 'Avaliação', value: '4.9/5', icon: Sparkles, color: 'purple' }
-];
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState('atendimento@atendo.com');
+  const [password, setPassword] = useState('123456');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-const todaysAppointments = [
-  { time: '09:00', client: 'Ana Paula', service: 'Manicure em casa', status: 'Confirmado' },
-  { time: '10:30', client: 'Marina Souza', service: 'Pedicure + alongamento', status: 'Pendente' },
-  { time: '13:00', client: 'Letícia Nunes', service: 'Manutenção de unhas', status: 'Confirmado' },
-  { time: '15:45', client: 'Patrícia Costa', service: 'Pedicure premium', status: 'Em andamento' }
-];
+  const handleLogin = async (event: FormEvent) => {
+    event.preventDefault();
+    setLoading(true);
+    setError('');
 
-export default function DashboardPage() {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Erro no login');
+      }
+
+      localStorage.setItem('atendo-user', JSON.stringify(result.user));
+      router.push('/dashboard');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro desconhecido');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <AppShell>
-      <div className="space-y-8">
-        <header className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[0.22em] text-pink-500">Dashboard</p>
-            <h1 className="mt-2 text-3xl font-black text-[#2b1d22]">Visão geral</h1>
-          </div>
-          <button className="rounded-2xl bg-gradient-to-r from-[#f86fa0] to-[#d81b60] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-pink-200 transition hover:brightness-105">
-            + Novo agendamento
-          </button>
-        </header>
-
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {statCards.map(({ label, value, icon: Icon, color }) => (
-            <div key={label} className="rounded-[24px] border border-pink-100 bg-white p-5 shadow-sm">
-              <div className="flex items-center justify-between">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff3f7,_#f6e7ef_35%,_#f0eaf1_100%)] px-4 py-10">
+      <div className="mx-auto max-w-6xl overflow-hidden rounded-[32px] border border-pink-100 bg-white/80 shadow-soft backdrop-blur-sm">
+        <div className="grid min-h-[780px] md:grid-cols-2">
+          <section className="relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#fff2f6] via-[#f9dfe9] to-[#f6edf4] p-8">
+            <div className="absolute left-6 top-8 h-16 w-16 rounded-full bg-pink-200/50 blur-2xl" />
+            <div className="absolute bottom-10 right-10 h-24 w-24 rounded-full bg-rose-200/50 blur-3xl" />
+            <div className="relative w-full max-w-xl rounded-[28px] border border-white/60 bg-white/40 p-8 shadow-soft backdrop-blur-xl">
+              <div className="mb-6 flex items-center gap-3">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#ff6ca5] to-[#d81b60] text-xl font-black text-white shadow-lg shadow-pink-200">
+                  A
+                </div>
                 <div>
-                  <p className="text-sm text-[#6b4d56]">{label}</p>
-                  <p className="mt-3 text-3xl font-black text-[#2b1d22]">{value}</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.3em] text-pink-500">Atendo</p>
+                  <h1 className="text-3xl font-black italic text-[#d81b60]">à Domicílio</h1>
                 </div>
-                <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-2xl ${
-                    color === 'rose'
-                      ? 'bg-pink-100 text-pink-600'
-                      : color === 'pink'
-                        ? 'bg-rose-100 text-rose-600'
-                        : color === 'amber'
-                          ? 'bg-amber-100 text-amber-600'
-                          : 'bg-violet-100 text-violet-600'
-                  }`}
+              </div>
+
+              <div className="space-y-4">
+                <div className="rounded-2xl bg-white/90 p-4 shadow-md">
+                  <p className="text-xs font-bold uppercase tracking-[0.28em] text-pink-500">Serviço</p>
+                  <p className="mt-2 text-2xl font-black text-[#2a1d22]">Manicure & Pedicure</p>
+                  <p className="mt-2 text-sm text-[#6f5c61]">Atendimento premium em casa com conforto, higiene e praticidade.</p>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-2xl bg-[#fff7fb] p-4 ring-1 ring-pink-100">
+                    <p className="text-sm font-bold text-[#d81b60]">Agendamentos</p>
+                    <p className="mt-2 text-3xl font-black text-[#2f1c22]">128</p>
+                    <p className="text-xs text-[#7c5c63]">no mês</p>
+                  </div>
+                  <div className="rounded-2xl bg-[#fff7fb] p-4 ring-1 ring-pink-100">
+                    <p className="text-sm font-bold text-[#d81b60]">Clientes</p>
+                    <p className="mt-2 text-3xl font-black text-[#2f1c22]">540</p>
+                    <p className="text-xs text-[#7c5c63]">ativos</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="flex items-center justify-center bg-white px-6 py-10 md:px-12">
+            <div className="w-full max-w-md">
+              <div className="mb-8">
+                <p className="text-sm font-bold uppercase tracking-[0.25em] text-pink-500">Bem-vindo</p>
+                <h2 className="mt-3 text-4xl font-black text-[#2b1d22]">Entrar</h2>
+              </div>
+
+              <form onSubmit={handleLogin} className="space-y-5">
+                <div>
+                  <label htmlFor="email" className="mb-2 block text-sm font-semibold text-[#4d3238]">E-mail</label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-2xl border border-pink-100 bg-[#fff8fb] px-4 py-3 text-[#2a1d22] outline-none transition focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
+                    placeholder="seu@email.com"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="password" className="mb-2 block text-sm font-semibold text-[#4d3238]">Senha</label>
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-2xl border border-pink-100 bg-[#fff8fb] px-4 py-3 text-[#2a1d22] outline-none transition focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+
+                {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div> : null}
+
+                <div className="flex items-center justify-between text-sm">
+                  <label className="flex items-center gap-2 text-[#5b444b]">
+                    <input type="checkbox" className="h-4 w-4 accent-[#d81b60]" /> Lembrar-me
+                  </label>
+                  <button type="button" className="font-semibold text-[#d81b60] hover:text-[#b40f4a]">Esqueci a senha</button>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full rounded-2xl bg-gradient-to-r from-[#f86fa0] via-[#de2b73] to-[#b40f4a] px-4 py-3 text-base font-bold text-white shadow-lg shadow-pink-200 transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  <Icon size={20} />
-                </div>
+                  {loading ? 'Entrando...' : 'Entrar'}
+                </button>
+              </form>
+
+              <div className="mt-6 rounded-2xl border border-pink-100 bg-[#fff7fb] px-4 py-3 text-sm text-[#5c4450]">
+                Acesso demo: <span className="font-semibold">atendimento@atendo.com</span> / <span className="font-semibold">123456</span>
               </div>
             </div>
-          ))}
-        </section>
-
-        <section className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-          <div className="rounded-[28px] border border-pink-100 bg-white p-5 shadow-sm">
-            <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-xl font-black text-[#2b1d22]">Agenda de hoje</h2>
-              <span className="text-sm font-semibold text-pink-600">12 compromissos</span>
-            </div>
-
-            <div className="space-y-3">
-              {todaysAppointments.map((item) => (
-                <div key={item.time} className="flex items-center justify-between rounded-2xl bg-[#fff7fa] p-4 ring-1 ring-pink-100">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#f9dfe9] to-[#fce2ee] text-pink-700">
-                      <CalendarDays size={18} />
-                    </div>
-                    <div>
-                      <p className="font-bold text-[#2b1d22]">{item.client}</p>
-                      <p className="text-sm text-[#6a4a52]">{item.service}</p>
-                    </div>
-                  </div>
-
-                  <div className="text-right">
-                    <p className="font-bold text-[#2b1d22]">{item.time}</p>
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
-                        item.status === 'Confirmado'
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : item.status === 'Pendente'
-                            ? 'bg-amber-100 text-amber-700'
-                            : 'bg-pink-100 text-pink-700'
-                      }`}
-                    >
-                      {item.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-[28px] border border-pink-100 bg-gradient-to-br from-[#fff3f7] to-[#fffdfd] p-5 shadow-sm">
-            <h2 className="text-xl font-black text-[#2b1d22]">Resumo</h2>
-            <div className="mt-5 space-y-4">
-              <div className="rounded-2xl bg-white p-4 ring-1 ring-pink-100">
-                <p className="text-sm text-[#6d4f56]">Receita do mês</p>
-                <p className="mt-2 text-3xl font-black text-[#2b1d22]">R$ 18.450</p>
-              </div>
-              <div className="rounded-2xl bg-white p-4 ring-1 ring-pink-100">
-                <p className="text-sm text-[#6d4f56]">Taxa de retorno</p>
-                <p className="mt-2 text-3xl font-black text-[#2b1d22]">76%</p>
-              </div>
-              <div className="rounded-2xl bg-white p-4 ring-1 ring-pink-100">
-                <p className="text-sm text-[#6d4f56]">Atendimentos domicílio</p>
-                <p className="mt-2 text-3xl font-black text-[#2b1d22]">85%</p>
-              </div>
-            </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </div>
-    </AppShell>
+    </main>
   );
 }
