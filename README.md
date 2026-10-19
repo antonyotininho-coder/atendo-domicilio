@@ -1,2 +1,122 @@
-# atendo-domicilio
-Aplicativo de manicure e pedicure à domicílio com identidade visual moderna
+"use client";
+
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { CalendarDays, Home, LayoutDashboard, LogOut, Settings, Users } from 'lucide-react';
+
+const navItems = [
+  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Agenda', href: '/agenda', icon: CalendarDays },
+  { label: 'Clientes', href: '/clientes', icon: Users },
+  { label: 'Configurações', href: '/configuracoes', icon: Settings }
+];
+
+export default function AppShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<{ name: string } | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('atendo-user');
+    if (!saved) {
+      router.push('/login');
+      return;
+    }
+
+    try {
+      setUser(JSON.parse(saved));
+    } catch {
+      router.push('/login');
+    }
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('atendo-user');
+    router.push('/login');
+  };
+
+  return (
+    <div className="min-h-screen bg-[#fff9fb] text-[#2b1d22]">
+      <div className="mx-auto flex max-w-[1600px] gap-6 p-4 lg:p-6">
+        <aside className="hidden w-[280px] shrink-0 flex-col rounded-[30px] bg-gradient-to-b from-[#ffedf5] via-[#fff7fa] to-[#fffafc] p-5 shadow-soft lg:flex">
+          <div className="mb-8 flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f86fa0] to-[#d81b60] text-lg font-black text-white shadow-lg shadow-pink-200">
+              A
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-pink-500">Atendo</p>
+              <p className="text-xl font-black italic text-[#d81b60]">à Domicílio</p>
+            </div>
+          </div>
+
+          <nav className="space-y-2">
+            {navItems.map(({ label, href, icon: Icon }) => {
+              const active = pathname === href;
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+                    active
+                      ? 'bg-gradient-to-r from-[#f86fa0] to-[#d81b60] text-white shadow-lg shadow-pink-200'
+                      : 'text-[#4d3033] hover:bg-white/70'
+                  }`}
+                >
+                  <Icon size={18} />
+                  {label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="mt-auto rounded-[24px] bg-white p-4 shadow-sm ring-1 ring-pink-100">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-500">Conta</p>
+            <div className="mt-3 flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f9dfe9] to-[#fce2ee] font-black text-[#d81b60]">
+                {user?.name?.[0] ?? 'M'}
+              </div>
+              <div>
+                <p className="font-bold text-[#2b1d22]">{user?.name ?? 'Maria Silva'}</p>
+                <p className="text-xs text-[#6d4f56]">Atendente</p>
+              </div>
+            </div>
+            <button onClick={handleLogout} className="mt-4 flex items-center gap-2 text-sm font-semibold text-[#d81b60] hover:text-[#b40f4a]">
+              <LogOut size={16} /> Sair
+            </button>
+          </div>
+        </aside>
+
+        <main className="flex-1 rounded-[30px] bg-white/80 p-4 shadow-soft ring-1 ring-pink-100 backdrop-blur-sm md:p-6">
+          <header className="mb-6 flex items-center justify-between gap-4 border-b border-pink-100 pb-4">
+            <div className="flex items-center gap-3 lg:hidden">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f86fa0] to-[#d81b60] text-white shadow-lg shadow-pink-200">
+                A
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-pink-500">Atendo</p>
+                <p className="text-xl font-black italic text-[#d81b60]">à Domicílio</p>
+              </div>
+            </div>
+
+            <div className="hidden items-center gap-2 rounded-2xl bg-[#fff7fa] px-3 py-2 text-sm font-semibold text-[#4d3033] lg:flex">
+              <Home size={16} className="text-pink-500" />
+              Sistema de gestão
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="hidden rounded-2xl bg-[#fff7fa] px-3 py-2 text-sm font-semibold text-[#4d3033] sm:block">
+                Hoje • 25 Jan
+              </div>
+              <button onClick={handleLogout} className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f9dfe9] to-[#fce2ee] font-bold text-[#d81b60]">
+                {user?.name?.[0] ?? 'M'}
+              </button>
+            </div>
+          </header>
+
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}

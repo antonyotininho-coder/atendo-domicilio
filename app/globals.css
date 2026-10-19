@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #fff7fa;
+  --card: #ffffff;
+  --border: rgba(109, 30, 71, 0.08);
+  --text: #2d1d20;
+  --muted: #7c5c63;
+  --primary: #d81b60;
+  --primary-strong: #b40f4a;
+  --primary-soft: #f9dfe9;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #fff9fb 0%, #f8edf1 100%);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+input::placeholder {
+  color: #9a7d87;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(216, 27, 96, 0.28);
+  border-radius: 999px;
+}

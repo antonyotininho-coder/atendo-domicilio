@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(cuid())
+  name         String
+  email        String       @unique
+  passwordHash String
+  createdAt    DateTime     @default(now())
+  appointments Appointment[]
+}
+
+model Client {
+  id          String       @id @default(cuid())
+  name        String
+  email       String?
+  phone       String?
+  location    String?
+  service     String?
+  status      String       @default("Premium")
+  createdAt   DateTime     @default(now())
+  appointments Appointment[]
+}
+
+model Appointment {
+  id        String   @id @default(cuid())
+  clientId  String
+  userId    String
+  date      DateTime
+  time      String
+  service   String
+  status    String   @default("Confirmado")
+  local     String?
+  createdAt DateTime @default(now())
+
+  client Client @relation(fields: [clientId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+}
